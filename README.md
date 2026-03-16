@@ -23,6 +23,13 @@ However, moving from offline batch generation to interactive, real-time deployme
 
 We bypassed WebRTC/browser limitations to capture the authentic hardware throughput. We built a custom Python script that intercepts the raw PyTorch frames and dynamically encodes them directly to an MP4 on the server using `ffmpeg`. It programmatically duplicates frames to physically bake the exact generation delay into the video file and overlays the native hardware FPS via OpenCV.
 
+**4-Way Side-by-Side Comparison**
+*Top: Cyberpunk Detective | Bottom: Drone Metropolis*
+*Left: [1, 1, 1] Steps (High Speed) | Right: [2, 2, 2] Steps (High Quality)*
+<video src="assets/benchmark_hardware_quad_comparison.mp4" width="800" controls></video>
+
+---
+
 **Prompt: The Cyberpunk Detective**
 "A cinematic low-angle tracking shot of a cyberpunk detective walking down a neon-lit alleyway in the rain, 8k, photorealistic."
 
