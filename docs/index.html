@@ -1,122 +1,180 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helios-B200-Unleashed: Real-Time High-Quality Video Generation</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Helios Unleashed: Real-Time High-Quality Video Generation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Custom scrollbar for aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 leading-relaxed">
-    <div class="container mx-auto p-6 md:p-10 lg:p-16 max-w-4xl bg-white shadow-lg rounded-lg my-10">
+    <div class="container mx-auto p-6 md:p-10 lg:p-16 max-w-5xl bg-white shadow-lg rounded-lg my-10">
 
         <header class="text-center mb-12">
             <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 mb-4 tracking-tight">
-                Helios-B200-Unleashed
+                Helios Unleashed
             </h1>
             <p class="text-2xl md:text-3xl text-gray-600 font-light">
                 Real-Time High-Quality Video Generation
             </p>
         </header>
 
-        <section class="mb-10">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-200 pb-2">Introduction</h2>
-            <p class="text-lg mb-4">
-                Helios is a groundbreaking 14B video generation model designed for real-time performance and robustness to long-video drifting. While currently demonstrating impressive capabilities on NVIDIA H100 GPUs, this project, <strong>Helios-B200-Unleashed</strong>, outlines our strategic roadmap to push the boundaries further. Our ambition is to achieve a sustained <strong>24 Frames Per Second (FPS) with unparalleled visual quality</strong> on the next-generation NVIDIA B200 GPU, leveraging advanced quantisation and reinforcement learning techniques.
+        <section class="mb-10 bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">A Special Thanks to the Original Authors</h2>
+            <p class="text-lg">
+                First and foremost, a massive thank you to the incredible researchers at the <strong><a href="https://github.com/PKU-YuanGroup" class="text-blue-600 hover:underline">PKU-YuanGroup (Peking University)</a></strong>. 
+                This project builds upon their phenomenal, groundbreaking work on the <a href="https://github.com/PKU-YuanGroup/Helios" class="text-blue-600 hover:underline">Helios model</a> and the corresponding <a href="https://arxiv.org/abs/2312.13400" class="text-blue-600 hover:underline">Helios Research Paper</a>. Their open-source release of the 14-Billion parameter diffusion transformer is what makes our real-time acceleration efforts possible. We are simply pushing the limits of their phenomenal architecture for real-time WebRTC streaming and production deployments.
             </p>
         </section>
 
         <section class="mb-10">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-200 pb-2">Current Benchmarks: Helios on NVIDIA H100</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-200 pb-2">The Vision: Helios Unleashed</h2>
             <p class="text-lg mb-4">
-                The Helios model currently delivers a remarkable <strong>19.5 FPS</strong> on a single NVIDIA H100 GPU for minute-scale video generation. This achievement is notable as it does not rely on standard acceleration techniques like KV-cache, sparse/linear attention, or quantization, highlighting Helios's inherent efficiency. It proficiently handles Text-to-Video (T2V), Image-to-Video (I2V), and Video-to-Video (V2V) tasks.
+                When the original paper launched, it showcased breathtaking, high-fidelity long video generation at >19.5 FPS on a single H100 GPU. It sounded like the holy grail of real-time multi-modal generation. However, moving from offline batch generation to interactive, real-time deployment introduces massive engineering bottlenecks.
+            </p>
+            <p class="text-lg mb-4">
+                <strong>Helios Unleashed</strong> is our mission to conquer these bottlenecks. We are engineering a pipeline that achieves true, continuous 24 FPS real-time generation with uncompromised cinematic quality.
             </p>
         </section>
 
         <section class="mb-10">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-200 pb-2">The Power of NVIDIA B200: A New Era for AI Inference</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-200 pb-2">Why Real-World Streaming FPS Differs from Paper Claims</h2>
             <p class="text-lg mb-4">
-                The NVIDIA B200 GPU, powered by the innovative Blackwell architecture, represents a monumental leap in AI inference capabilities. Benchmarking indicates significant advantages in throughput and cost-effectiveness compared to its predecessors (H100 and H200). The B200 delivers up to <strong>15x performance improvements</strong> over the Hopper generation, primarily due to:
+                Based on our analysis of the Helios-Distilled architecture, here are the major reasons why the reported 1.58s per chunk (~20.8 FPS) is faster than our PyTorch hardware readout (~2.39s per chunk / ~13.8 FPS) on the exact same H100 hardware:
             </p>
-            <ul class="list-disc list-inside space-y-2 text-lg pl-5">
-                <li><strong>NVFP4 Precision:</strong> A new floating-point format designed for extreme efficiency.</li>
-                <li><strong>NVLink 5 Interconnects:</strong> Enhanced bandwidth for multi-GPU communication.</li>
-                <li><strong>TensorRT-LLM & Dynamo:</strong> Software optimizations accelerating large language model inference, which can be adapted for video generation.</li>
+            <ul class="list-disc list-inside space-y-2 text-lg pl-5 mb-6">
+                <li><strong>They benchmarked pure T2V (Text-to-Video), not I2V streaming:</strong> Their benchmark measures just the raw transformer. Streaming requires Image-to-Video (I2V) conditioning for chunk-to-chunk consistency, adding massive latency.</li>
+                <li><strong>They didn't include VAE decoding overhead:</strong> In our streaming pipeline, we decode latents back into full 720p RGB pixels on the GPU so that we can actually stream them. The VAE decode step for 33 frames of 720p video is mathematically heavy.</li>
+                <li><strong>Stage 2 (Upscaling/Refinement):</strong> We have `is_enable_stage2=True`. They likely disabled the second stage of the generation pipeline for their raw speed-test benchmark.</li>
+                <li><strong>Python I/O and Conversion Overhead:</strong> Converting the `bfloat16` PyTorch tensor to `float32`, pulling it from GPU VRAM to CPU RAM (`.cpu().numpy()`), and reshaping/scaling the array takes non-trivial millisecond time.</li>
             </ul>
-            <p class="text-lg mt-4">
-                These innovations provide the foundational hardware capabilities essential for our 24 FPS target.
+            <p class="text-lg font-semibold italic">
+                Essentially, they benchmarked the absolute bare-minimum matrix multiplication inside the Transformer. We are benchmarking the actual, usable pipeline that produces pixels you can look at.
             </p>
         </section>
 
-        <section class="mb-10 bg-blue-50 p-6 rounded-lg shadow-md">
-            <h2 class="text-4xl font-extrabold text-blue-700 mb-6 text-center">Future Roadmap for 24 FPS with High Visual Quality on B200</h2>
-            <p class="text-xl text-gray-700 mb-8 text-center">
-                To transcend the current performance and achieve 24 FPS with high visual fidelity on the B200, our roadmap focuses on two critical integration pathways: LightX2V and GenRL.
+        <section class="mb-10">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-blue-200 pb-2">Authentic Hardware Benchmarks</h2>
+            <p class="text-lg mb-6">
+                We bypassed WebRTC/browser limitations to capture the authentic hardware throughput. We built a custom Python script that intercepts the raw PyTorch frames and dynamically encodes them directly to an MP4 on the server using `ffmpeg`. It programmatically duplicates frames to physically bake the exact generation delay into the video file and overlays the native hardware FPS via OpenCV.
             </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-blue-300 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 text-lg font-semibold">1</span>
-                        LightX2V Integration for Extreme Performance (FP8/NVFP4 Quantisation)
-                    </h3>
-                    <p class="text-lg mb-4">
-                        LightX2V is an advanced inference framework specifically engineered for light image and video generation. Its integration will be pivotal in optimizing Helios's execution on the B200:
-                    </p>
-                    <ul class="list-disc list-inside space-y-2 text-lg pl-5">
-                        <li><strong>FP8/NVFP4 Quantisation:</strong> We will leverage LightX2V's support for FP8 (and B200's native NVFP4) per-tensor quantisation. This will drastically reduce the memory footprint and computational requirements, enabling higher throughput without significant quality degradation. LightX2V has demonstrated accelerations of approximately <strong>42x</strong> with FP8 models and 4-step CFG/step distillation on H100, providing a strong basis for even greater gains on B200.</li>
-                        <li><strong>CFG Parallelism and Block-Level Offload:</strong> Further optimizations from LightX2V, such as CFG parallelism and intelligent block-level offloading, will ensure efficient resource utilization and minimize latency, directly contributing to our FPS goal.</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-blue-300 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 text-lg font-semibold">2</span>
-                        GenRL for Advanced Motion and Aesthetic Tuning (FlowGRPO Reinforcement Learning)
-                    </h3>
-                    <p class="text-lg mb-4">
-                        While LightX2V focuses on raw performance, GenRL will be instrumental in elevating the visual quality and coherence of the generated videos:
-                    </p>
-                    <ul class="list-disc list-inside space-y-2 text-lg pl-5">
-                        <li><strong>FlowGRPO Reinforcement Learning:</strong> We will implement FlowGRPO reinforcement learning, a core component of GenRL, for sophisticated motion and aesthetic tuning. This technique enables multi-reward optimization, using metrics like HPSv3 and VideoAlign, to refine the diffusion and flow models within Helios.</li>
-                        <li><strong>Enhanced Motion Coherence & Aesthetic Quality:</strong> By applying FlowGRPO, we anticipate significant improvements in video output, specifically in achieving fluid motion, reducing artifacts, and boosting overall aesthetic appeal to meet professional quality standards. GenRL's high-performance LoRA checkpoints provide a strong foundation for these enhancements.</li>
-                    </ul>
+            
+            <div class="bg-gray-100 p-6 rounded-lg mb-8">
+                <p class="text-xl italic text-gray-700 mb-6 text-center">
+                    "A cinematic low-angle tracking shot of a cyberpunk detective walking down a neon-lit alleyway in the rain, 8k, photorealistic."
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="text-center">
+                        <h4 class="text-xl font-bold mb-2">[1, 1, 1] Steps</h4>
+                        <p class="text-sm text-gray-600 mb-4">High Speed (~17-18 FPS), Degraded Visuals</p>
+                        <video src="../assets/benchmark_hardware_1_1_1_A.mp4" class="w-full rounded shadow" controls loop muted></video>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-xl font-bold mb-2">[2, 2, 2] Steps</h4>
+                        <p class="text-sm text-gray-600 mb-4">High Quality (~11-13 FPS), Stuttering Playback</p>
+                        <video src="../assets/benchmark_hardware_2_2_2_A.mp4" class="w-full rounded shadow" controls loop muted></video>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section class="mb-10">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-200 pb-2">Achieving the 24 FPS & High Quality Synergy</h2>
-            <p class="text-lg mb-4">
-                The combination of the NVIDIA B200's raw computational power, LightX2V's aggressive inference optimizations (especially FP8/NVFP4 quantisation), and GenRL's sophisticated quality enhancements (FlowGRPO reinforcement learning) creates a synergistic approach. This trifecta will enable Helios to not only surpass the 24 FPS benchmark but also set a new standard for real-time, high-visual-quality video generation. We are confident this roadmap will unleash the full potential of Helios on the B200 architecture.
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-blue-200 pb-2">The First Breakthrough: RIFE Interpolation</h2>
+            <p class="text-lg mb-6">
+                To solve the latency vs. throughput bottleneck without sacrificing the high visual quality of the <code>[2, 2, 2]</code> setting, we introduced <strong>RIFE (Real-Time Intermediate Flow Estimation)</strong> into an asynchronous multi-GPU pipeline.
             </p>
+            <p class="text-lg mb-6">
+                We took the pure <code>[2, 2, 2]</code> hardware encode that was natively struggling at ~11-13 FPS, stripped out the duplicate delay frames, and ran it directly through the RIFE AI interpolation model on an L4 GPU. RIFE analyzes the 12 FPS footage, interpolates the missing frames via optical flow, and outputs a buttery-smooth <strong>24 FPS</strong> video with minimal delay (~10-15ms per frame).
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-gray-100 p-6 rounded-lg">
+                <div class="text-center">
+                    <h4 class="text-xl font-bold mb-2">Before RIFE</h4>
+                    <p class="text-sm text-gray-600 mb-4">~11-13 FPS natively with stutter</p>
+                    <video src="../assets/benchmark_hardware_2_2_2_A.mp4" class="w-full rounded shadow" controls loop muted></video>
+                </div>
+                <div class="text-center">
+                    <h4 class="text-xl font-bold mb-2">After RIFE</h4>
+                    <p class="text-sm text-green-600 font-bold mb-4">Boosted to a buttery smooth 24 FPS</p>
+                    <video src="../assets/benchmark_rife_2_2_2_A.mp4" class="w-full rounded shadow" controls loop muted></video>
+                </div>
+            </div>
         </section>
 
-        <section>
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-200 pb-2">Conclusion & Next Steps</h2>
-            <p class="text-lg mb-4">
-                Helios-B200-Unleashed represents our commitment to leading the frontier of real-time video generation. With the strategic integration of LightX2V and GenRL on the NVIDIA B200 platform, we are poised to deliver unprecedented performance and visual fidelity. We look forward to sharing our progress and the continued evolution of this exciting project.
+        <section class="mb-10 bg-blue-50 p-6 rounded-lg shadow-md">
+            <h2 class="text-4xl font-extrabold text-blue-700 mb-6 text-center">What We're Doing Next: The Future Roadmap</h2>
+            <p class="text-xl text-gray-700 mb-8 text-center">
+                To transcend the current performance and achieve a true 24 FPS pipeline natively with uncompromised visual fidelity, our roadmap outlines the following engineering milestones:
             </p>
+
+            <div class="grid grid-cols-1 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2 flex items-center">
+                        <span class="bg-blue-300 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 text-lg font-semibold">1</span>
+                        B200 Hardware Acceleration
+                    </h3>
+                    <p class="text-lg ml-11">
+                        The upcoming NVIDIA Blackwell B200 GPU is central to our idea. The B200 provides <strong>8 TB/s of HBM3e bandwidth</strong>, solving the memory-bound limits of DiTs. Combined with FlashAttention-4 (CuTe-DSL) and TMA (Tensor Memory Accelerator), the B200 will shatter current compilation walls and tensor throughput limits.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2 flex items-center">
+                        <span class="bg-blue-300 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 text-lg font-semibold">2</span>
+                        Multi-GPU Asynchronous Pipelining & Zero-Copy NVENC
+                    </h3>
+                    <p class="text-lg ml-11 mb-2">
+                        We are building a <strong>3-Stage Async Pipeline</strong> across GPUs using Pipeline Parallelism:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-lg pl-16">
+                        <li><strong>GPU 0 (The Brain):</strong> Exclusively runs the Helios Transformer generating latents.</li>
+                        <li><strong>GPU 1 (The Painter & Smoother):</strong> VAE Decoder and RIFE Interpolation running asynchronously via NVLink.</li>
+                        <li><strong>Zero-Copy NVENC:</strong> Passing PyTorch tensor pointers directly to NVIDIA's hardware encoder (NVENC) to completely eliminate Python <code>.cpu().numpy()</code> I/O overhead.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2 flex items-center">
+                        <span class="bg-blue-300 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 text-lg font-semibold">3</span>
+                        LightX2V Integration for Extreme Performance (FP8/NVFP4 Quantisation)
+                    </h3>
+                    <p class="text-lg ml-11">
+                        <a href="https://github.com/ModelTC/LightX2V" class="text-blue-600 hover:underline">LightX2V</a> is an advanced inference framework designed for visual generation. We will leverage its implementations for FP8/NVFP4 inference. Quantizing the model to FP8 doubles matrix multiplication throughput and halves the VRAM footprint. This allows the <code>[2, 2, 2]</code> setting to run as fast as the low-quality <code>[1, 1, 1]</code> setting.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2 flex items-center">
+                        <span class="bg-blue-300 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 text-lg font-semibold">4</span>
+                        GenRL for Advanced Motion and Aesthetic Tuning
+                    </h3>
+                    <p class="text-lg ml-11">
+                        When dropping Helios to the <code>[1, 1, 1]</code> speed-test setting, the quality becomes smeared and glitchy. <a href="https://github.com/ModelTC/GenRL" class="text-blue-600 hover:underline">GenRL</a> is the missing piece for solving the visual quality problem. We will run the Helios-Distilled model through GenRL using built-in <code>videoalign_mq</code> and <code>hpsv3_general</code> reward functions via FlowGRPO. We can effectively fine-tune the model to look structurally coherent and drastically better even at the 1-step inference count.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-blue-200">
+                <p class="text-xl font-semibold text-center text-blue-900">
+                    By combining the B200's raw throughput, LightX2V's FP8 engine, GenRL's reward tuning, and RIFE's optical flow interpolation, we will hit the holy grail: <br><span class="text-2xl mt-2 block">24 FPS real-time generation that actually looks like the paper's original high-quality benchmarks.</span>
+                </p>
+            </div>
+        </section>
+
+        <section class="text-center mt-12 bg-gray-900 text-white p-8 rounded-lg shadow-xl">
+            <h2 class="text-3xl font-bold mb-4">Join Us on this Journey</h2>
+            <p class="text-lg text-gray-300 mb-6">
+                If you're an engineer obsessed with killing latency, writing Triton kernels, and building the future of real-time AI generation, we're building the ultimate foundation right here. Let's make silicon sweat.
+            </p>
+            <a href="https://github.com/yepicaiaaron/helios-unleashed" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                View on GitHub
+            </a>
         </section>
 
     </div>
