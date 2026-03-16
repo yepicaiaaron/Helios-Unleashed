@@ -2,15 +2,23 @@
 
 ## The Promise vs. The Reality
 
-When the original [Helios paper](https://arxiv.org/abs/2312.13400) and [repository](https://github.com/PKU-YuanGroup/Open-Sora-Plan) were released, we were incredibly excited. The benchmarks showcased breathtaking, high-fidelity long video generation. The visual quality, temporal consistency, and sheer resolution were revolutionary.
+When the original [Helios paper](https://arxiv.org/abs/2312.13400) and [repository](https://github.com/PKU-YuanGroup/Open-Sora-Plan) were released, we were incredibly excited. The benchmarks showcased breathtaking, high-fidelity long video generation. The visual quality, temporal consistency, and sheer resolution were revolutionary. We thought we were looking at the future of real-time generation.
 
-However, our excitement turned into severe disappointment when we attempted to run real-time generation. In practice, the video quality was nowhere near the high fidelity benchmarked in the paper. We discovered a massive gap between offline batch generation and interactive, real-time deployment. 
+However, our excitement turned into severe disappointment over the weekend of March 14-15 when we finally tried to run the interactive, real-time generation ourselves. We discovered a massive, disheartening gap between offline batch generation and interactive, real-time deployment. The reality is a jittery, stuttering mess.
 
-### The Hardware Bottleneck
+### The Hardware Bottleneck & The 33-Frame Problem
 
-Why does this happen? The root cause is a fundamental hardware and memory bandwidth bottleneck. 
+Why does this happen? The root cause is a fundamental hardware and memory bandwidth bottleneck, specifically related to H100 memory limits.
 
-Real-time video generation requires extreme throughput and near-instantaneous KV-cache access across massive temporal contexts. When deployed on standard hardware (or even current-generation data center GPUs), the memory bandwidth saturates. To maintain real-time latency requirements, systems are forced to drastically down-sample the resolution, prune the KV-cache aggressively, or reduce the number of inference steps. The result is a heavily degraded output—smudged textures, hallucinated temporal artifacts, and a loss of the high-frequency details that made the original Helios paper so compelling.
+During our weekend dive into the codebase, we uncovered exactly how the architecture functions in practice. We had to patch the `pipeline_helios_diffusers.py` codebase to yield latents chunk-by-chunk to enable interactive rendering over WebRTC. 
+
+What we found was staggering: the H100 memory limits and the underlying architecture force the model to batch render these latents in **33-frame chunks**. This chunking is exactly what causes the video to play in "chunks" and appear incredibly jittery.
+
+Because these 33-frame chunks have to be batched, computed, and then pushed over LiveKit (WebRTC), it creates a stuttering, non-continuous playback experience. Instead of the smooth, high-fidelity real-time generation benchmarked in the paper, we get latency spikes and blocky, discontinuous output that completely shatters the illusion of real-time generation.
+
+![Helios Architecture and H100 Bottleneck](assets/architecture_chart_new.png)
+
+*Figure 1: High-fidelity diagram illustrating the 33-frame chunking bottleneck in `pipeline_helios_diffusers.py` caused by H100 memory limits, and the subsequent stuttering WebRTC delivery via LiveKit.*
 
 ## Our Solution: B200 + FlashAttention-4 + TMEM Architecture
 
@@ -20,7 +28,7 @@ We introduce a novel architecture leveraging the sheer compute density of the **
 
 ![Performance Benchmark](assets/chart_1.png)
 
-*Figure 1: Real-time generation quality comparison. While current hardware bottlenecks force severe quality degradation to maintain low latency, our B200 + FlashAttention-4 + TMEM architecture sustains paper-level fidelity in real-time.*
+*Figure 2: Real-time generation quality comparison. While current hardware bottlenecks force severe quality degradation to maintain low latency, our B200 + FlashAttention-4 + TMEM architecture sustains paper-level fidelity in real-time.*
 
 ### Architecture Deep Dive
 
