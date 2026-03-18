@@ -95,6 +95,8 @@ When dropping Helios to the `[1, 1, 1]` speed-test setting, the quality becomes 
 
 By combining the B200's raw throughput, LightX2V's FP8 engine, GenRL's reward tuning, and RIFE's optical flow interpolation, we will hit the holy grail: **24 FPS real-time generation that actually looks like the paper's original high-quality benchmarks.**
 
+### 5. Fixing "Neon" VAE Latent Saturation & Drifting
+Currently, the pipeline attempts continuous video generation by taking the raw decoded output of frame $N$ and feeding it back as an Image-to-Video (I2V) prompt for frame $N+1$. This naive autoregressive loop causes severe "drifting" and feedback degradation. Because Latent Diffusion VAEs have inherent color entanglement (often pairing colors on opponent axes like Magenta-Green), accumulating noise causes these latent channels to saturate and "blow out," resulting in the neon green and pink hallucinations seen in long generations. To solve this, we will implement **Unified History Injection**—passing the raw, un-decoded latent math (the KV cache) from the previous chunk directly into the next chunk—which is how the original Helios model was engineered to maintain temporal consistency without VAE saturation.
 ---
 
 **Join Us on this Journey.** If you're an engineer obsessed with killing latency, writing Triton kernels, and building the future of real-time AI generation, we're building the ultimate foundation right here.
